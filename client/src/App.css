@@ -2,6 +2,12 @@
 body {
     font-family: "K2D", sans-serif;
 }
+header, nav {
+    z-index:10001 !important;
+}
+.heart {
+    z-index:5000 !important;
+}
 .section-container {
     @apply max-w-screen-2xl container mx-auto xl:px-24 px-4
 }
@@ -11,4 +17,10 @@ body {
 }
 .title{
     @apply text-4xl md:text-5xl md:leading-snug font-bold my-2
+}
+
+.active{
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    @apply text-red;
 }
