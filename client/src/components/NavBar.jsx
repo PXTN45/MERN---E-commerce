@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import Modal from "./Modal";
 import { AuthContext } from "../context/AuthProvider";
+import Profile from "./Profile";
 
 const NavBar = () => {
   const { user, setUser, createUser } = useContext(AuthContext);
@@ -8,14 +9,14 @@ const NavBar = () => {
   const navItems = (
     <>
       <li>
-        <a>Home</a>
+        <a href="/">Home</a>
       </li>
       <li tabIndex={0}>
         <details>
           <summary>Category</summary>
           <ul className="p-2">
             <li>
-              <a>All</a>
+              <a href="/shop">All</a>
             </li>
             <li>
               <a>Clothing</a>
@@ -135,26 +136,32 @@ const NavBar = () => {
                 <span className="badge badge-sm indicator-item">8</span>
               </div>
             </div>
-            <button
-              className="btn bg-red rounded-full px-5 text-white flex items-center gap-2"
-              onClick={() => document.getElementById("login").showModal()}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
+            {user ? (
+              <>
+                <Profile user={user} />
+              </>
+            ) : (
+              <button
+                className="btn bg-red rounded-full px-5 text-white flex items-center gap-2"
+                onClick={() => document.getElementById("login").showModal()}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                />
-              </svg>
-              Login
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                </svg>
+                Login
+              </button>
+            )}
           </div>
           <Modal name="login" />
         </div>

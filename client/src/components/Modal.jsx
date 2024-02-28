@@ -1,12 +1,15 @@
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
 import { SiGmail } from "react-icons/si";
-import { FaFacebookF } from "react-icons/fa";
-import { FaGithub } from "react-icons/fa";
+import { FaFacebookF,FaGithub } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../context/AuthProvider";
 
 const Modal = ({ name }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = location?.state?.from?.pathname || "/";
+
   const { login, signUpWithGoogle } = useContext(AuthContext);
   const {
     register,
@@ -18,8 +21,10 @@ const Modal = ({ name }) => {
     login(data.email, data.password)
       .then((result) => {
         const user = result.user;
-        console.log(user);
+        // console.log(user);
         alert("Login successful");
+        document.getElementById(name).close();
+        navigate(from, { replace: true });
       })
       .catch((error) => {
         console.log(error);
@@ -28,12 +33,12 @@ const Modal = ({ name }) => {
 
   const googleSignUp = () => {
     signUpWithGoogle().then((result) => {
-        const user = result.user;
-        console.log(user);
-        alert("Google Login successful");
-        document.getElementById("login").close();
-    })
-  }
+      const user = result.user;
+      console.log(user);
+      alert("Google Login successful");
+      document.getElementById("login").close();
+    });
+  };
   return (
     <dialog id={name} className="modal">
       <div className="modal-box">
@@ -104,13 +109,16 @@ const Modal = ({ name }) => {
           </button>
         </form>
         <div className="text-center space-x-10 mb-5 ">
-          <button  className="btn btn-ghost btn-circle hover:bg-red hover:text-white" onClick={googleSignUp}>
+          <button
+            className="btn btn-ghost btn-circle hover:bg-red hover:text-white"
+            onClick={googleSignUp}
+          >
             <SiGmail />
           </button>
-          <button className="btn btn-ghost btn-circle hover:bg-red hover:text-white" >
+          <button className="btn btn-ghost btn-circle hover:bg-red hover:text-white">
             <FaFacebookF />
           </button>
-          <button className="btn btn-ghost btn-circle hover:bg-red hover:text-white" >
+          <button className="btn btn-ghost btn-circle hover:bg-red hover:text-white">
             <FaGithub />
           </button>
         </div>
