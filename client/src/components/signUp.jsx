@@ -25,7 +25,7 @@ const signUp = () => {
       .then((result) => {
         const user = result.user;
         console.log(user);
-        alert("Account create successful");
+        alert("Account register successful");
         navigate(from, { replace: true });
       })
       .catch((error) => {
@@ -63,24 +63,24 @@ const signUp = () => {
             required
             {...register("password")}
           />
-          <label className="label">
+          {/* <label className="label">
             <a href="#" className="label-text-alt link link-hover">
               Forgot password?
             </a>
-          </label>
+          </label> */}
         </div>
         <div className="form-control mt-6">
           <input
             type="submit"
-            value="Login"
+            value="register"
             className="btn bg-red text-white"
           />
         </div>
         <p className="text-center my-2 ">
           Have an account ?{" "}
           <button
-            onClick={() => document.getElementById("login").showModal()}
-            to="/signup"
+            onClick={() => document.getElementById("register").showModal()}
+            to="/signin"
             className="underline ml-1"
           >
             {" "}

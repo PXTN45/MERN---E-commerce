@@ -9,12 +9,12 @@ const Profile = ({ user }) => {
   const handleLogOut = () => {
     logout().then(() => {
         alert("Logouted");
-        // document.getElementById(user).close();
         navigate("/");
     }).catch((error) => {
         console.log(error);
     })
   };
+
   return (
     <div>
       <div className="drawer drawer-end z-50">

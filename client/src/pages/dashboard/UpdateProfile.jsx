@@ -29,6 +29,7 @@ const UpdateProfile = () => {
         console.log(error);
       });
   };
+  
   return (
     <div className="max-w-md bg-white shadow w-full mx-auto flex-items-center justify-center my-20">
       <form

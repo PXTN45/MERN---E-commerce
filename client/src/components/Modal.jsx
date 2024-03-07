@@ -11,12 +11,14 @@ const Modal = ({ name }) => {
   const from = location?.state?.from?.pathname || "/";
 
   const { login, signUpWithGoogle } = useContext(AuthContext);
+  
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm();
+
   const onSubmit = (data) => {
     login(data.email, data.password)
       .then((result) => {
@@ -39,6 +41,7 @@ const Modal = ({ name }) => {
       document.getElementById("login").close();
     });
   };
+
   return (
     <dialog id={name} className="modal">
       <div className="modal-box">

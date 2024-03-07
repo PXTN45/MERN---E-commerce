@@ -8,6 +8,7 @@ import ProductList from "../pages/shop/ProductList";
 import UpdateProfile from "../pages/dashboard/UpdateProfile";
 import PrivateRouter from "../PrivateRouter/PrivateRouter";
 
+
 const router = createBrowserRouter([
   {
     path: "/",

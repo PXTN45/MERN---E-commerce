@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const router = express.Router();
 const productRouter = require("./routes/product.router");
+const cartItemRouter = require("./routes/cartItem.router")
 const mongoose = require("mongoose");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -53,6 +54,7 @@ const MONGODB_URL = process.env.MONGODB_URL;
 mongoose.connect(MONGODB_URL);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/products", productRouter);
+app.use("/cartItem", cartItemRouter);
 
 app.get("/", (req, res) => {
   res.send("<h1> this is a restaurant API </h1>");
