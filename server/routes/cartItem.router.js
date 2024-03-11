@@ -45,6 +45,7 @@
 const express = require("express");
 const router = express.Router();
 const CartItemModel = require("../models/CartItem.model");
+const ProductModel = require("../models/Product.model")
 
 /**
  * @swagger
@@ -75,13 +76,13 @@ router.get("/", async (req, res) => {
 
 /**
  * @swagger
- * /cartItem/{id}:
+ * /cartItem/{email}:
  *   get:
  *     summary: Retrieve a list of cartItem by id.
  *     tags:    [CartItem]
  *     parameters:
  *      -   in: path
- *          name: id
+ *          name: email
  *          required: true
  *          schema:
  *              type: string
@@ -103,9 +104,9 @@ router.get("/", async (req, res) => {
 router.get("/:email", async (req, res) => {
   try {
     const cartItemEmail = req.params.email;
-    const cartItem = await CartItemModel.findOne({ email: cartItemEmail });
-    if (!cartItem) {
-      return res.status(404).json({ message: "cartItem not found" });
+    const cartItem = await CartItemModel.find({ email: cartItemEmail });
+    if (!cartItem || cartItem.length === 0) {
+      return res.status(404).json({ message: "ไม่พบสินค้า" });
     }
     res.json(cartItem);
   } catch (error) {
@@ -137,26 +138,77 @@ router.get("/:email", async (req, res) => {
  */
 
 router.post("/", async (req, res) => {
-  const cart = req.body;
+  // ตรวจสอบว่า req.body มี property product_id หรือไม่
+  if (!req.body.productId) {
+    return res.status(400).json({ message: "Missing product_id in req.body" });
+  }
+
+  // ดึงข้อมูลผลิตภัณฑ์จากฐานข้อมูล
   try {
-    const existingCarts = CartItemModel.findOne({
-      product_id: cart.product_id,
-      email: cart.email,
-    });
-    if (existingCarts) {
-      existingCarts.quantity += cart.quantity;
-      await existingCarts.save();
-      return res.status(200);
+    const product = await ProductModel.findById(req.body.productId);
+    const productId = product._id.toString();
+
+    // ตรวจสอบว่ามีผลิตภัณฑ์
+    if (req.body.productId !== productId) {
+       return res.status(404).json({ message: "Product not found" });
     }
-    const newCart = new CartItemModel(cart);
-    await newCart.save();
-    res.json(newCart);
+
+    const existingCart = await CartItemModel.findOne({ productId: req.body.productId });
+    const existingCartByUser = await CartItemModel.findOne({ email: req.body.email });
+
+    if (existingCart) {
+      if (existingCartByUser) {
+        // ถ้ามีข้อมูลใน Cart อยู่แล้ว และไม่มี Cart ที่อยู่ใน user นี้
+        const quantity = Number(req.body.quantity);
+        existingCart.quantity += quantity;
+        await existingCart.save();
+        return res.status(200).json(existingCart);
+      }
+    }
+
+    // สร้าง CartItemModel ด้วย req.body ที่ถูกส่งมา
+    const newCart = new CartItemModel(req.body);
+
+    // บันทึกลงในฐานข้อมูล
+    const savedCart = await newCart.save();
+
+    res.status(201).json(savedCart);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-
+/**
+ * @swagger
+ * /cartItem/{id}:
+ *   put:
+ *     summary: Update the CartItem detail.
+ *     tags:    [CartItem]
+ *     parameters:
+ *      -   in: path
+ *          name: id
+ *          required: true
+ *          schema:
+ *              type: string
+ *          description:    the CartItem id
+ *     requestBody:
+ *      required:   true
+ *      content:
+ *          application/json:
+ *              schema:
+ *                  $ref:   '#/components/schemas/CartItem'
+ *     responses:
+ *      200:
+ *          description: The CartItem by id.
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref:   '#/components/schemas/CartItem'
+ *      404:
+ *          description: CartItem not CartItem
+ *      500:
+ *          description: Some error happened
+ */
 router.put("/:id", async (req, res) => {
   const id = req.params.id;
   const data = req.body;
@@ -173,18 +225,69 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /cartItem/{id}:
+ *   delete:
+ *     summary: delete CartItem by id.
+ *     tags:    [CartItem]
+ *     parameters:
+ *      -   in: path
+ *          name: id
+ *          required: true
+ *          schema:
+ *              type: string
+ *          description:    the CartItem id
+ *     responses:
+ *      200:
+ *          description: delete CartItem is deleted.
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref:   '#/components/schemas/CartItem'
+ *      404:
+ *          description: CartItem not CartItem
+ *      500:
+ *          description: Some error happened
+ */
+
 router.delete("/:id", async (req, res) => {
   try {
     const cart = await CartItemModel.findByIdAndDelete(req.params.id);
     if (!cart) {
-      res.status(404).json({ message: "cart Not Found" });
+      return res.status(404).json({ message: "cart Not Found" });
     }
     res.json(cart);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 });
 
+/**
+ * @swagger
+ * /cartItem/clear/{email}:
+ *   delete:
+ *     summary: delete CartItem by email.
+ *     tags:    [CartItem]
+ *     parameters:
+ *      -   in: path
+ *          name: email
+ *          required: true
+ *          schema:
+ *              type: string
+ *          description:    the CartItem email
+ *     responses:
+ *      200:
+ *          description: delete CartItem is deleted.
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref:   '#/components/schemas/CartItem'
+ *      404:
+ *          description: CartItem not CartItem
+ *      500:
+ *          description: Some error happened
+ */
 router.delete("/clear/:email", async (req, res) => {
   try {
     const deletedCart = await CartItemModel.deleteMany({
@@ -196,7 +299,7 @@ router.delete("/clear/:email", async (req, res) => {
     res.status(404).json({ message: "Empty cart" });
   } catch (error) {
     //error handling
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 });
 

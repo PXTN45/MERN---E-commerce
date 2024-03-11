@@ -85,11 +85,7 @@ const signIn = () => {
               Sign Up Now{" "}
             </Link>{" "}
           </p>
-          <button
-            htmlFor={name}
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            onClick={() => document.getElementById(name).close()}
-          >
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
