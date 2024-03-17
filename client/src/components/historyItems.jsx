@@ -4,6 +4,7 @@ import { FiPlus, FiMinus } from "react-icons/fi";
 import { AuthContext } from "../context/AuthProvider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useCart from "../hook/useCart";
 
 const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
   const { user, setReload } = useContext(AuthContext);
@@ -13,38 +14,30 @@ const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
   const [randomOneCary, setRandomOneCart] = useState([]);
   const [totalCash, setTotalCash] = useState([]);
   const url = "http://localhost:5000";
-  const navigate = useNavigate();
+  const [cart, refetch] = useCart()
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // console.log(user);
-        // console.log(user.email);
-        if (user && user.email) { // ตรวจสอบว่า user ไม่เป็น null และมี property email
-          // console.log(user.email);
+        if (user && user.email) {
           const response = await axios.get(`${url}/cartItem/${user.email}`);
           const data = await response.data;
           setDataCart(data);
-          // console.log("hello");
           const productDataPromises = data.map(async (cartItem) => {
             const productResponse = await axios.get(
               `${url}/products/${cartItem.productId}`
             );
-            // console.log(cartItem);
             return productResponse.data;
           });
-  
           const productDataResults = await Promise.all(productDataPromises);
           setProductData(productDataResults);
-  
           const randomOne = data[0];
           setRandomOneCart(randomOne);
-  
           const totalCashInCart = data.reduce(
             (total, item) => total + item.price * item.quantity,
             0
           );
           setTotalCash(totalCashInCart);
-  
         } else {
           console.log("User or email is null:", user);
         }
@@ -54,7 +47,6 @@ const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
     };
     fetchData();
   }, [user, reload, totalCash]);
-  
 
   const closeModal = () => {
     const modal = document.getElementById(name);
@@ -63,7 +55,7 @@ const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
 
   const handleIncreaseQuantity = async (cartItem) => {
     const newCartItem = {
-      productId: cartItem._id,
+      productId: cartItem.productId,
       name: cartItem.name,
       email: user.email,
       price: cartItem.price,
@@ -90,10 +82,7 @@ const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
     };
     try {
       if (decreaseQuantity !== 0) {
-        await axios.put(
-          `${url}/cartItem/${cartItem._id}`,
-          newCartItem
-        );
+        await axios.put(`${url}/cartItem/${cartItem._id}`, newCartItem);
         setReload(true);
       } else {
         console.log("Cannot decrease quantity");
@@ -109,6 +98,7 @@ const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
       const newTotalQuantity = totalQuantity - cartItem.quantity;
       setTotalQuantity(newTotalQuantity);
       setReload(true);
+      refetch()
     } catch (error) {
       console.log(error);
     }
@@ -119,7 +109,7 @@ const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
       await axios.delete(`${url}/cartItem/clear/${user.email}`);
       setTotalQuantity(0);
       setReload(true);
-      // navigate("/");
+      refetch()
     } catch (error) {
       console.log(error);
     }
@@ -184,14 +174,13 @@ const historyItems = ({ name, reload, totalQuantity, setTotalQuantity }) => {
               </div>
             ))}
             {/* ข้อมูลรายละเอียดเพิ่มเติม */}
-              <div className="flex p-4 items-center">
-                <p>Name : {randomOneCary.name}</p>
-                <p className="ml-auto">{totalQuantity} รายการ</p>
-              </div>
-              <div className="flex p-4 items-center">
-                <p>Email : {randomOneCary.email}</p>
-                <p className="ml-auto">รวม {totalCash} บาท</p>
-              </div>
+            <div className="flex p-4 items-center">
+              <p className="ml-auto">{cart.length || 0} รายการ</p>
+            </div>
+            <div className="flex p-4 items-center">
+              <p>Email : {randomOneCary.email}</p>
+              <p className="ml-auto">รวม {totalCash} บาท</p>
+            </div>
 
             {/* ปุ่ม Clear All และ Buy Now */}
             <div className="flex">

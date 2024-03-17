@@ -15,7 +15,7 @@ export const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   // Initialize Firebase Authentication and get a reference to the service
   const auth = getAuth(app);
-  
+
   const [user, setUser] = useState(null);
   const [reload, setReload] = useState(false);
 
@@ -32,16 +32,16 @@ const AuthProvider = ({ children }) => {
     return signInWithPopup(auth, provider);
   };
 
-  const updateUserProfile = ({name, photoURL}) => {
+  const updateUserProfile = ({ name, photoURL }) => {
     return updateProfile(auth.currentUser, {
-      displayName: name, 
-      photoURL: photoURL
-    })
-  }
+      displayName: name,
+      photoURL: photoURL,
+    });
+  };
 
   const logout = () => {
-    return signOut(auth)
-  }
+    return signOut(auth);
+  };
 
   const authInfo = {
     user,

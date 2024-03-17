@@ -1,39 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import Modal from "./Modal";
+import { Link } from "react-router-dom";
 import HistoryItems from "./historyItems";
 import { AuthContext } from "../context/AuthProvider";
 import Profile from "./Profile";
 import axios from "axios";
+import useCart from "../hook/useCart";
 
 const NavBar = () => {
   const url = "http://localhost:5000";
   const { user, reload, setReload } = useContext(AuthContext);
+  const [cart, refetch] = useCart();
   const [totalQuantity, setTotalQuantity] = useState(0);
-  useEffect(() => {
-    setReload(false);
-    
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${url}/cartItem/${user.email}`
-        );
-        
-        const data = await response.data;
-          const sumQuantity = data.reduce(
-            (total, cartItem) => total + cartItem.quantity,
-            0
-            );
-        if (response.status === 200) {
-          setTotalQuantity(sumQuantity);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, [user, reload]);
-
   const navItems = (
     <>
       <li>
@@ -146,27 +124,29 @@ const NavBar = () => {
               tabIndex={0}
               role="button"
               className="btn btn-ghost btn-circle hidden lg:flex mr-3 items-center justify-center"
-              onClick={() => document.getElementById("carts").showModal()}
+              // onClick={() => document.getElementById("carts").showModal()}
             >
-              <div className="indicator">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-                <span className="badge badge-sm indicator-item">
-                  {totalQuantity}
-                </span>
-              </div>
+              <Link to={"/cart"}>
+                <div className="indicator">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                  <span className="badge badge-sm indicator-item">
+                    {cart.length || 0}
+                  </span>
+                </div>
+              </Link>
             </div>
             {user ? (
               <>
@@ -198,12 +178,11 @@ const NavBar = () => {
             )}
           </div>
           <Modal name="login" />
-          <HistoryItems
+          {/* <HistoryItems
             name="carts"
-            reload={reload}
             totalQuantity={totalQuantity}
             setTotalQuantity={setTotalQuantity}
-          />
+          /> */}
         </div>
       </div>
     </header>

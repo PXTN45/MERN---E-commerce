@@ -1,16 +1,18 @@
 import React, { useState, useContext } from "react";
-import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { AuthContext } from "../context/AuthProvider";
-import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../context/AuthProvider";
+import { Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import useCart from "../hook/useCart";
 
 const Card = ({ item }) => {
   const url = "http://localhost:5000";
   const { _id, name, image, price, description } = item;
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [cart, refetch] = useCart();
+  // const navigate = useNavigate();
+  // const location = useLocation();
   const [isHeartFilled, setIsHeartFilled] = useState(false);
 
   const handleHeartClick = () => {
@@ -28,15 +30,18 @@ const Card = ({ item }) => {
         quantity: 1,
       };
       try {
-        axios.post(`${url}/cartItem`, cartItem).then(
-          Swal.fire({
-            title: "Product added!",
-            position: "center",
-            icon: "success",
-            showconfirmButtonText: false,
-            timer: 1500,
-          })
-        );
+        axios.post(`${url}/cartItem`, cartItem).then((response) => {
+          if (response.status === 200 || response.status === 201) {
+            refetch();
+            Swal.fire({
+              title: "Product added!",
+              position: "center",
+              icon: "success",
+              showconfirmButtonText: false,
+              timer: 1500,
+            });
+          }
+        });
       } catch (error) {
         Swal.fire({
           title: "Some error happen!",
